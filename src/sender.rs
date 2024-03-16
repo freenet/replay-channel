@@ -1,5 +1,6 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 use crate::shared_state::SharedState;
+use parking_lot::Mutex;
 
 pub struct Sender<T> {
     shared_state: Arc<Mutex<SharedState<T>>>,
@@ -8,8 +9,7 @@ pub struct Sender<T> {
 
 impl<T: Clone + Send + 'static> Sender<T> {
     pub fn send(&self, message: T) {
-        // Attempt to acquire the lock, handling poison errors gracefully
-        let mut state = self.shared_state.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        let mut state = self.shared_state.lock();
 
         state.messages.push_back(message.clone());
         for condvar in &state.condvars {

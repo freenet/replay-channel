@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::fmt::Debug;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::Arc;
+use parking_lot::Mutex;
 use crate::receiver::Receiver;
 use crate::sender::Sender;
 use crate::shared_state::SharedState;
@@ -169,32 +170,6 @@ mod tests {
         sender.send(3);
         assert_eq!(receiver.receive(), 2);
         assert_eq!(receiver.receive(), 3);
-    }
-
-    #[test]
-    fn error_handling_lock_poisoning() {
-        use std::sync::Arc;
-        use std::thread;
-
-        let channel = ReplayChannel::new();
-        let sender = channel.sender();
-        let shared_state = Arc::clone(&channel.shared_state);
-
-        // Simulate a panic while holding the lock to poison it
-        let _ = thread::spawn(move || {
-            let _lock = shared_state.lock().unwrap();
-            panic!("Simulating a panic while holding the lock");
-        })
-            .join();
-
-        // Attempt to send a message after the lock has been poisoned
-        let result = thread::spawn(move || {
-            sender.send(42);  // This should handle the poisoned lock internally
-        })
-            .join();
-
-        // Check if the send operation completed without panicking
-        assert!(result.is_ok(), "Send operation should handle the poisoned lock and not panic");
     }
 
 }

@@ -1,4 +1,5 @@
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc};
+use parking_lot::{Condvar, Mutex};
 use crate::shared_state::SharedState;
 
 pub struct Receiver<T> {
@@ -9,12 +10,11 @@ pub struct Receiver<T> {
 
 impl<T: Clone + Send + 'static> Receiver<T> {
     pub fn receive(&mut self) -> T {
-        let mut state = self.shared_state.lock().unwrap();
+        let mut state = self.shared_state.lock();
 
         // Loop until a message is available.
         while self.index >= state.messages.len() {
-            // This call blocks until a new message is available.
-            state = self.condvar.wait(state).unwrap();
+            self.condvar.wait(&mut state);
         }
 
         // At this point, there is a guarantee that a message is available.
@@ -27,7 +27,7 @@ impl<T: Clone + Send + 'static> Receiver<T> {
 impl<T: Clone + Send + 'static> Receiver<T> {
     pub(crate) fn new(shared_state: Arc<Mutex<SharedState<T>>>) -> Self {
         let condvar = {
-            let mut state = shared_state.lock().unwrap();
+            let mut state = shared_state.lock();
             state.add_receiver()
         };
 
@@ -52,7 +52,7 @@ mod tests {
 
         // Initially, there should be an additional reference for the receiver
         // and one for each condvar inside the shared state.
-        let initial_count = 2 + channel.shared_state.lock().unwrap().condvars.len();
+        let initial_count = 2 + channel.shared_state.lock().condvars.len();
         assert_eq!(initial_count, Arc::strong_count(&channel.shared_state));
 
         // Drop the receiver
@@ -60,7 +60,7 @@ mod tests {
 
         // After dropping, the count should decrease by 1 (for the receiver)
         // and by the number of condition variables, since each receiver has one.
-        let final_count = 1 + channel.shared_state.lock().unwrap().condvars.len(); // Only `channel` and possibly senders hold a reference
+        let final_count = 1 + channel.shared_state.lock().condvars.len(); // Only `channel` and possibly senders hold a reference
         assert_eq!(final_count, Arc::strong_count(&channel.shared_state));
     }
 

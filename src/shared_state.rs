@@ -1,5 +1,6 @@
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc};
 use std::collections::VecDeque;
+use parking_lot::{Condvar, Mutex};
 
 pub(crate) struct SharedState<T> {
     pub(crate) messages: VecDeque<T>,

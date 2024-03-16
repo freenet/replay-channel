@@ -4,7 +4,8 @@ A Rust library that provides a `ReplayChannel`, a multi-receiver communication c
 new receiver can catch up by receiving all previously sent messages before continuing with real-time 
 message reception.
 
-This library was created by and for the [Freenet Project](https://freenet.org/).
+This library was created by [Ian Clarke](https://twitter.com/sanity) for the 
+[Freenet Project](https://freenet.org/).
 
 ## Features
 
