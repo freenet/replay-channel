@@ -12,7 +12,7 @@ impl<T: Clone + Send + 'static> Sender<T> {
         let mut state = self.shared_state.lock();
 
         state.messages.push_back(message.clone());
-        for condvar in &state.condvars {
+        for condvar in &state.notifiers {
             condvar.notify_one();
         }
     }

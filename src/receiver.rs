@@ -1,43 +1,43 @@
-use std::sync::{Arc};
-use parking_lot::{Condvar, Mutex};
+use tokio::sync::{ Notify};
+use std::sync::Arc;
 use crate::shared_state::SharedState;
+use parking_lot::Mutex;
 
 pub struct Receiver<T> {
     shared_state: Arc<Mutex<SharedState<T>>>,
-    condvar: Arc<Condvar>,
-    index: usize,  // Track the index of the next message to receive
+    notify: Arc<Notify>,
+    index: usize,
 }
 
-impl<T: Clone + Send + 'static> Receiver<T> {
-    pub fn receive(&mut self) -> T {
+impl<T: Clone + Send + Sync + 'static> Receiver<T> {
+    pub async fn receive(&mut self) -> T {
         let mut state = self.shared_state.lock();
 
-        // Loop until a message is available.
         while self.index >= state.messages.len() {
-            self.condvar.wait(&mut state);
+            self.notify.notified().await;
+            state = self.shared_state.lock();
         }
 
-        // At this point, there is a guarantee that a message is available.
         let message = state.messages[self.index].clone();
         self.index += 1;
         message
     }
-}
 
-impl<T: Clone + Send + 'static> Receiver<T> {
+    // Adjust the constructor accordingly
     pub(crate) fn new(shared_state: Arc<Mutex<SharedState<T>>>) -> Self {
-        let condvar = {
+        let notify = {
             let mut state = shared_state.lock();
             state.add_receiver()
         };
-
+        
         Receiver {
             shared_state,
-            condvar,
+            notify,
             index: 0,
         }
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -52,7 +52,7 @@ mod tests {
 
         // Initially, there should be an additional reference for the receiver
         // and one for each condvar inside the shared state.
-        let initial_count = 2 + channel.shared_state.lock().condvars.len();
+        let initial_count = 2 + channel.shared_state.lock().notifiers.len();
         assert_eq!(initial_count, Arc::strong_count(&channel.shared_state));
 
         // Drop the receiver
@@ -60,7 +60,7 @@ mod tests {
 
         // After dropping, the count should decrease by 1 (for the receiver)
         // and by the number of condition variables, since each receiver has one.
-        let final_count = 1 + channel.shared_state.lock().condvars.len(); // Only `channel` and possibly senders hold a reference
+        let final_count = 1 + channel.shared_state.lock().notifiers.len(); // Only `channel` and possibly senders hold a reference
         assert_eq!(final_count, Arc::strong_count(&channel.shared_state));
     }
 
