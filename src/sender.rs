@@ -10,7 +10,6 @@ impl<T: Clone + Send + 'static> Sender<T> {
     pub fn send(&self, message: T) {
         {
             let mut state = self.shared_state.write();
-
             state.messages.push_back(message.clone());
         }
         for condvar in &self.shared_state.read().notifiers {

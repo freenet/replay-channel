@@ -11,14 +11,13 @@ pub struct Receiver<T> {
 
 impl<T: Clone + Send + Sync + 'static> Receiver<T> {
     pub async fn receive(&mut self) -> T {
-        let mut state = self.shared_state.read();
-
-        while self.index >= state.messages.len() {
-            self.notify.notified().await;
-            state = self.shared_state.read();
+        let message;
+        {
+            while self.index >= self.shared_state.read().messages.len() {
+                self.notify.notified().await;
+            }
+            message = self.shared_state.read().messages[self.index].clone();
         }
-
-        let message = state.messages[self.index].clone();
         self.index += 1;
         message
     }
