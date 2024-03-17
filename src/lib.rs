@@ -6,8 +6,8 @@ use crate::receiver::Receiver;
 use crate::sender::Sender;
 use crate::shared_state::SharedState;
 
-mod sender;
-mod receiver;
+pub mod sender;
+pub mod receiver;
 mod shared_state;
 
 /// A `ReplayChannel` provides a multi-receiver, message-passing communication channel
