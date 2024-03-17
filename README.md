@@ -1,27 +1,26 @@
 # ReplayChannel
 
-A Rust library that provides a `ReplayChannel`, a multi-receiver communication channel where each 
-new receiver can catch up by receiving all previously sent messages before continuing with real-time 
-message reception.
+`ReplayChannel` is a Rust library that lets you create a channel where messages are broadcast to all 
+receivers. Importantly, if a new receiver is added later, they'll get all previously sent messages 
+until they are caught up with the sender.
 
-This library was created by [Ian Clarke](https://twitter.com/sanity) for the 
-[Freenet Project](https://freenet.org/).
+Developed by [Ian Clarke](https://twitter.com/sanity) for the [Freenet Project](https://freenet.org/).
 
 ## Features
 
 - **Message Replay:** Allows new receivers to receive all previously sent messages, ensuring full context is maintained.
 - **Multi-Receiver:** Supports multiple receivers, each with its own view of the message history and real-time stream.
-- **Thread-Safe:** Designed to be safe for use across multiple threads, allowing concurrent sends and receives.
+- **Asynchronous:** Designed to be used with Tokio, async-std, or any other async runtime.
 
-## Usage
+## Getting Started
 
-Add `ReplayChannel` to your `Cargo.toml`:
+To use `ReplayChannel`, add it to your project's `Cargo.toml`:
 
 ```bash
 $ cargo add replay-channel
 ```
 
-### Basic Example (from async context)
+### Usage Example
 
 ```rust
 let replay_channel = ReplayChannel::new();
@@ -41,18 +40,6 @@ sender.send("message 3");
 assert_eq!(new_receiver.receive().await, "message 3");
 ```
 
-## Testing
-
-The crate comes with a suite of tests to ensure functionality. Run tests with:
-
-```bash
-cargo test
-```
-
-## Contributions
-
-Contributions are welcome! Please feel free to submit a pull request or create an issue for bugs, feature requests, or documentation improvements.
-
 ## License
 
-This crate is distributed under the [MIT license](LICENSE.md).
+Available under the [MIT license](LICENSE.md).
