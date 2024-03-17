@@ -10,5 +10,6 @@ description = "A broadcast channel where new receivers replay all past messages 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+orx-concurrent-vec = "1.0.0"
 parking_lot = "0.12.1"
 tokio = { version = "1.36.0", features = ["parking_lot", "full"] }

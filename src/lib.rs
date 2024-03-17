@@ -4,6 +4,7 @@ use crate::shared_state::SharedState;
 use parking_lot::RwLock;
 use std::collections::VecDeque;
 use std::sync::Arc;
+use orx_concurrent_vec::ConcurrentVec;
 
 pub mod receiver;
 pub mod sender;
@@ -48,15 +49,15 @@ mod shared_state;
 /// # }); // Hidden line
 /// ```
 pub struct ReplayChannel<T: Clone + Send + 'static> {
-    shared_state: Arc<RwLock<SharedState<T>>>,
+    shared_state: Arc<SharedState<T>>,
 }
 
 impl<T: Clone + Send + Sync + 'static> ReplayChannel<T> {
     pub fn new() -> Self {
-        let shared_state = Arc::new(RwLock::new(SharedState {
-            messages: VecDeque::new(),
-            notifiers: vec![],
-        }));
+        let shared_state = Arc::new(SharedState {
+            messages: ConcurrentVec::new(),
+            notifiers: ConcurrentVec::new(),
+        });
         ReplayChannel { shared_state }
     }
 

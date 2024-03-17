@@ -3,21 +3,20 @@ use parking_lot::RwLock;
 use std::sync::Arc;
 
 pub struct Sender<T> {
-    shared_state: Arc<RwLock<SharedState<T>>>,
+    shared_state: Arc<SharedState<T>>,
 }
 
 impl<T: Clone + Send + 'static> Sender<T> {
     pub fn send(&self, message: T) {
         {
-            let mut state = self.shared_state.write();
-            state.messages.push_back(message.clone());
+            self.shared_state.messages.push(message.clone());
         }
-        for condvar in &self.shared_state.read().notifiers {
+        for condvar in self.shared_state.notifiers.iter() {
             condvar.notify_one();
         }
     }
 
-    pub(crate) fn new(shared_state: Arc<RwLock<SharedState<T>>>) -> Self {
+    pub(crate) fn new(shared_state: Arc<SharedState<T>>) -> Self {
         Sender { shared_state }
     }
 }
