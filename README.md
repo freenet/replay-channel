@@ -21,27 +21,24 @@ Add `ReplayChannel` to your `Cargo.toml`:
 $ cargo add replay-channel
 ```
 
-### Basic Example
+### Basic Example (from async context)
 
 ```rust
-use replay_channel::ReplayChannel;
-
-// Create a new ReplayChannel
 let replay_channel = ReplayChannel::new();
 let sender = replay_channel.sender();
-
-// Send some messages
 sender.send("message 1");
 sender.send("message 2");
 
-// Create a new receiver and catch up on past messages
 let mut receiver = replay_channel.receiver();
-assert_eq!(receiver.receive(), "message 1");
-assert_eq!(receiver.receive(), "message 2");
+assert_eq!(receiver.receive().await, "message 1");
+assert_eq!(receiver.receive().await, "message 2");
 
-// Continue to receive new messages in real-time
+let mut new_receiver = replay_channel.receiver();
+assert_eq!(new_receiver.receive().await, "message 1");
+assert_eq!(new_receiver.receive().await, "message 2");
+
 sender.send("message 3");
-assert_eq!(receiver.receive(), "message 3");
+assert_eq!(new_receiver.receive().await, "message 3");
 ```
 
 ## Testing

@@ -1,9 +1,10 @@
 [package]
 name = "replay-channel"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/freenet/replay-channel"
+documentation = "https://docs.rs/replay-channel"
 description = "A broadcast channel where new receivers replay all past messages before receiving new ones."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
