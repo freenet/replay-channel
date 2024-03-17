@@ -1,10 +1,8 @@
 use crate::receiver::Receiver;
 use crate::sender::Sender;
 use crate::shared_state::SharedState;
-use parking_lot::RwLock;
-use std::collections::VecDeque;
 use std::sync::Arc;
-use orx_concurrent_vec::ConcurrentVec;
+use append_only_vec::AppendOnlyVec;
 
 pub mod receiver;
 pub mod sender;
@@ -21,6 +19,10 @@ mod shared_state;
 /// This is particularly useful in scenarios where the state history is important and
 /// late-joining receivers need to process all past messages to be properly synchronized
 /// with the current state.
+/// 
+/// ReplayChannel uses an [AppendOnlyVec](https://crates.io/crates/append-only-vec) which
+/// is a lock-free, append-only vector that allows for efficient, concurrent writes and
+/// reads. This makes it suitable for high-throughput message passing.
 ///
 /// # Examples
 ///
@@ -55,8 +57,8 @@ pub struct ReplayChannel<T: Clone + Send + 'static> {
 impl<T: Clone + Send + Sync + 'static> ReplayChannel<T> {
     pub fn new() -> Self {
         let shared_state = Arc::new(SharedState {
-            messages: ConcurrentVec::new(),
-            notifiers: ConcurrentVec::new(),
+            messages: AppendOnlyVec::new(),
+            notifiers: AppendOnlyVec::new(),
         });
         ReplayChannel { shared_state }
     }
@@ -91,7 +93,7 @@ mod tests {
     async fn receiver_replays_past_messages() {
         let channel = ReplayChannel::new();
         let sender = channel.sender();
-        let mut receiver1 = channel.receiver();
+        let receiver1 = channel.receiver();
 
         // Send two messages
         sender.send(1);
@@ -102,7 +104,7 @@ mod tests {
         assert_eq!(receiver1.receive().await, 2);
 
         // Receiver 2 is created and should receive the same two messages
-        let mut receiver2 = channel.receiver();
+        let receiver2 = channel.receiver();
         assert_eq!(receiver2.receive().await, 1);
         assert_eq!(receiver2.receive().await, 2);
 

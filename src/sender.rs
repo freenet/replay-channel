@@ -1,5 +1,4 @@
 use crate::shared_state::SharedState;
-use parking_lot::RwLock;
 use std::sync::Arc;
 
 pub struct Sender<T> {

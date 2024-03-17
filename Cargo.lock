@@ -18,6 +18,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
+name = "append-only-vec"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3cb8f874ecf419dd8165d0279746de966cb8966636d028845e3bd65d519812a"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -136,31 +142,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "orx-concurrent-vec"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe7b0d8ad4b0ce08a4e627eb92d06533a18e3983fcf4f61f423da253123460d9"
-dependencies = [
- "orx-pinned-vec",
- "orx-split-vec",
-]
-
-[[package]]
-name = "orx-pinned-vec"
-version = "2.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a88805a4cef967d2e7707f38c2b6d4a0b12e629b2c2a3628554110aa371fb3d"
-
-[[package]]
-name = "orx-split-vec"
-version = "2.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b83b65457b7f4c47510deb86ab2a973ea5ba0730bebe875d076f62f0e41e1fa"
-dependencies = [
- "orx-pinned-vec",
-]
-
-[[package]]
 name = "parking_lot"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -220,7 +201,7 @@ dependencies = [
 name = "replay-channel"
 version = "0.1.10"
 dependencies = [
- "orx-concurrent-vec",
+ "append-only-vec",
  "parking_lot",
  "tokio",
 ]
