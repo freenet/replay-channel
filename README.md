@@ -12,6 +12,11 @@ Developed by [Ian Clarke](https://twitter.com/sanity) for the [Freenet Project](
 - **Multi-Receiver:** Supports multiple receivers, each with its own view of the message history and real-time stream.
 - **Asynchronous:** Designed to be used with Tokio, async-std, or any other async runtime.
 
+## Memory Usage
+
+`ReplayChannel` uses a `VecDeque` to store all sent messages, so the memory usage is proportional 
+to the number of messages sent. Because of this the number of messages sent should be bounded.
+
 ## Getting Started
 
 To use `ReplayChannel`, add it to your project's `Cargo.toml`:
