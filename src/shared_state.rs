@@ -1,10 +1,10 @@
-use std::sync::{Arc};
 use std::collections::VecDeque;
-use tokio::sync::{Notify};
+use std::sync::Arc;
+use tokio::sync::Notify;
 
 pub(crate) struct SharedState<T> {
     pub(crate) messages: VecDeque<T>,
-    pub(crate) notifiers: Vec<Arc<Notify>>,  // Each receiver has an associated Condvar for notification
+    pub(crate) notifiers: Vec<Arc<Notify>>, // Each receiver has an associated Condvar for notification
 }
 
 impl<T: Clone + Send + 'static> SharedState<T> {

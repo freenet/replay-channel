@@ -1,13 +1,12 @@
-use std::collections::VecDeque;
-use std::fmt::Debug;
-use std::sync::Arc;
-use parking_lot::Mutex;
 use crate::receiver::Receiver;
 use crate::sender::Sender;
 use crate::shared_state::SharedState;
+use parking_lot::RwLock;
+use std::collections::VecDeque;
+use std::sync::Arc;
 
-pub mod sender;
 pub mod receiver;
+pub mod sender;
 mod shared_state;
 
 /// A `ReplayChannel` provides a multi-receiver, message-passing communication channel
@@ -49,12 +48,12 @@ mod shared_state;
 /// # }); // Hidden line
 /// ```
 pub struct ReplayChannel<T: Clone + Send + 'static> {
-    shared_state: Arc<Mutex<SharedState<T>>>,
+    shared_state: Arc<RwLock<SharedState<T>>>,
 }
 
 impl<T: Clone + Send + Sync + 'static> ReplayChannel<T> {
     pub fn new() -> Self {
-        let shared_state = Arc::new(Mutex::new(SharedState {
+        let shared_state = Arc::new(RwLock::new(SharedState {
             messages: VecDeque::new(),
             notifiers: vec![],
         }));
@@ -174,5 +173,4 @@ mod tests {
         assert_eq!(receiver.receive().await, 2);
         assert_eq!(receiver.receive().await, 3);
     }
-
 }
