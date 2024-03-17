@@ -199,7 +199,7 @@ dependencies = [
 
 [[package]]
 name = "replay-channel"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "append-only-vec",
  "parking_lot",

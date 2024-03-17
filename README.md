@@ -11,11 +11,13 @@ Developed by [Ian Clarke](https://twitter.com/sanity) for the [Freenet Project](
 - **Message Replay:** New receivers are sent all previously sent messages until they are caught up with the sender.
 - **Multi-Receiver:** Supports multiple receivers, each with its own view of the message history and real-time stream.
 - **Asynchronous:** Designed to be used with Tokio, async-std, or any other async runtime.
+- **Efficient:** Uses an [AppendOnlyVec](https://crates.io/crates/append-only-vec) to store sent
+                   messages, avoiding locks.
 
 ## Memory Usage
 
-`ReplayChannel` uses a `VecDeque` to store all sent messages, so the memory usage is proportional 
-to the number of messages sent. Because of this the number of messages sent should be bounded.
+`ReplayChannel` stores all sent messages, so the memory usage is proportional to the number of 
+messages sent. Because of this the number of messages sent should be bounded.
 
 ## Getting Started
 
