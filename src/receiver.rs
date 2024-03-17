@@ -24,11 +24,7 @@ impl<T: Clone + Send + Sync + 'static> Receiver<T> {
                 }
                 self.notify.notified().await;
             }
-            // Using unsafe here is okay because the loop above guarantees that `index` is less 
-            // than the length of `messages`. This means that `get_unchecked(index)` will never 
-            // be out of bounds. Also the size of messages can only increase.
-
-                message = self.shared_state.messages[index].clone();
+            message = self.shared_state.messages[index].clone();
         }
         self.index.fetch_add(1, AcqRel);
         message
