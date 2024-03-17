@@ -8,7 +8,7 @@ Developed by [Ian Clarke](https://twitter.com/sanity) for the [Freenet Project](
 
 ## Features
 
-- **Message Replay:** Allows new receivers to receive all previously sent messages, ensuring full context is maintained.
+- **Message Replay:** New receivers are sent all previously sent messages until they are caught up with the sender.
 - **Multi-Receiver:** Supports multiple receivers, each with its own view of the message history and real-time stream.
 - **Asynchronous:** Designed to be used with Tokio, async-std, or any other async runtime.
 
