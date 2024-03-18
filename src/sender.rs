@@ -10,9 +10,7 @@ impl<T: Clone + Send + 'static> Sender<T> {
         {
             self.shared_state.messages.push(message.clone());
         }
-        for condvar in self.shared_state.notifiers.iter() {
-            condvar.notify_one();
-        }
+        self.shared_state.notifier.send(message).unwrap();
     }
 
     pub(crate) fn new(shared_state: Arc<SharedState<T>>) -> Self {

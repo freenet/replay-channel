@@ -1,14 +1,12 @@
-use Ordering::Relaxed;
 use crate::shared_state::SharedState;
-use parking_lot::RwLock;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::atomic::Ordering::{AcqRel, Acquire, SeqCst};
-use tokio::sync::Notify;
+use std::sync::atomic::{AtomicUsize};
+use std::sync::atomic::Ordering::{AcqRel, Acquire};
+use tokio::sync::{broadcast, Notify};
 
 pub struct Receiver<T> {
     shared_state: Arc<SharedState<T>>,
-    notify: Arc<Notify>,
+    notify: Arc<broadcast::Receiver<T>>,
     index: AtomicUsize,
 }
 
@@ -30,7 +28,6 @@ impl<T: Clone + Send + Sync + 'static> Receiver<T> {
         message
     }
 
-    // Adjust the constructor accordingly
     pub(crate) fn new(shared_state: Arc<SharedState<T>>) -> Self {
         let notify = {
             shared_state.add_receiver()
