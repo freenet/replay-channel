@@ -15,18 +15,24 @@ pub struct Receiver<T> {
 impl<T: Clone + Send + Sync + 'static> Receiver<T> {
     pub async fn receive(&self) -> T {
         let message;
-        {
-            let mut index;
-            loop {
-                index = self.index.load(Acquire);
-                if index < self.shared_state.messages.len() {
-                    break;
-                }
+        loop {
+            let index = self.index.load(Acquire);
+            if index >= self.shared_state.messages.len() {
                 self.notify.notified().await;
+                continue;
             }
-            message = self.shared_state.messages[index].clone();
+            let new_index = index + 1;
+            match self.index.compare_exchange(index, new_index, AcqRel, Acquire) {
+                Ok(_) => {
+                    // The index was successfully incremented
+                    message = self.shared_state.messages[index].clone();
+                    break;
+                },
+                Err(_) => {
+                    // The index was not incremented, retry the loop
+                }
+            }
         }
-        self.index.fetch_add(1, AcqRel);
         message
     }
 
