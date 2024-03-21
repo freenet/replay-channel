@@ -6,11 +6,11 @@ pub struct Sender<T> {
 }
 
 impl<T: Clone + Send + 'static> Sender<T> {
-    pub fn send(&self, message: T) {
+    pub async fn send(&self, message: T) {
         {
             self.shared_state.messages.push(message.clone());
         }
-        self.shared_state.notifier.send(message).unwrap();
+        self.shared_state.sender.broadcast_direct(message).await.expect("broadcast should not fail");
     }
 
     pub(crate) fn new(shared_state: Arc<SharedState<T>>) -> Self {

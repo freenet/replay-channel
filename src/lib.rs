@@ -58,7 +58,7 @@ impl<T: Clone + Send + Sync + 'static> ReplayChannel<T> {
     pub fn new() -> Self {
         let shared_state = Arc::new(SharedState {
             messages: AppendOnlyVec::new(),
-            notifiers: AppendOnlyVec::new(),
+            sender: async_broadcast::broadcast(1).0,
         });
         ReplayChannel { shared_state }
     }
@@ -93,7 +93,7 @@ mod tests {
     async fn receiver_replays_past_messages() {
         let channel = ReplayChannel::new();
         let sender = channel.sender();
-        let receiver1 = channel.receiver();
+        let mut receiver1 = channel.receiver();
 
         // Send two messages
         sender.send(1);
@@ -104,7 +104,7 @@ mod tests {
         assert_eq!(receiver1.receive().await, 2);
 
         // Receiver 2 is created and should receive the same two messages
-        let receiver2 = channel.receiver();
+        let mut receiver2 = channel.receiver();
         assert_eq!(receiver2.receive().await, 1);
         assert_eq!(receiver2.receive().await, 2);
 
@@ -118,8 +118,8 @@ mod tests {
         let mut receiver1 = channel.receiver();
         let mut receiver2 = channel.receiver();
 
-        sender.send(1);
-        sender.send(2);
+        sender.send(1).await;
+        sender.send(2).await;
 
         assert_eq!(receiver1.receive().await, 1);
         assert_eq!(receiver1.receive().await, 2);
@@ -153,9 +153,9 @@ mod tests {
         let sender = channel.sender();
         let mut receiver = channel.receiver();
 
-        sender.send(1);
-        sender.send(2);
-        sender.send(3);
+        sender.send(1).await;
+        sender.send(2).await;
+        sender.send(3).await;
 
         assert_eq!(receiver.receive().await, 1);
         assert_eq!(receiver.receive().await, 2);
