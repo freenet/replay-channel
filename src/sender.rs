@@ -10,8 +10,8 @@ impl<T: Clone + Send + 'static> Sender<T> {
         {
             self.shared_state.messages.push(message.clone());
         }
-        for condvar in self.shared_state.notifiers.iter() {
-            condvar.notify_one();
+        for notify in self.shared_state.notifiers.iter() {
+            notify.notify_one();
         }
     }
 
