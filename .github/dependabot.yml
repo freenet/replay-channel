@@ -72,3 +72,10 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+# NOTE -- automated security FIXES are intentionally disabled on this repo,
+# because it is dormant and a stream of security PRs nobody is watching is the
+# same backlog this file exists to prevent. Dependabot ALERTS are enabled, so a
+# vulnerability still shows on the security tab. The note above about security
+# PRs arriving immediately therefore does NOT apply here. To turn them on:
+#   gh api --method PUT repos/freenet/<this-repo>/automated-security-fixes
